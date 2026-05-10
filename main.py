@@ -172,6 +172,59 @@ def view_connected_attendees():
             connected_name = cursor.fetchone()
             print(f"Connected to: {connected_id} - {connected_name[0]}")
 
+def add_attendee_connection():
+    # Get two attendee IDs
+    while True:
+        id1 = input("Enter first attendee ID: ").strip()
+        if id1.isnumeric():
+            break
+        print("Invalid attendee ID, please enter a numeric ID")
+    
+    while True:
+        id2 = input("Enter second attendee ID: ").strip()
+        if id2.isnumeric():
+            break
+        print("Invalid attendee ID, please enter a numeric ID")
+    
+    id1 = int(id1)
+    id2 = int(id2)
+    
+    # Check they are not the same person
+    if id1 == id2:
+        print("An attendee cannot be connected to themselves")
+        return
+    
+    # Check both exist in MySQL
+    cursor.execute("SELECT attendeeName FROM attendee WHERE attendeeID = %s", (id1,))
+    attendee1 = cursor.fetchone()
+    if attendee1 is None:
+        print(f"Attendee {id1} does not exist in the database")
+        return
+    
+    cursor.execute("SELECT attendeeName FROM attendee WHERE attendeeID = %s", (id2,))
+    attendee2 = cursor.fetchone()
+    if attendee2 is None:
+        print(f"Attendee {id2} does not exist in the database")
+        return
+    
+    # Check if already connected in Neo4j
+    result = neo4j_session.run("""
+        MATCH (a:Attendee {AttendeeID: $id1})-[:CONNECTED_TO]-(b:Attendee {AttendeeID: $id2})
+        RETURN a
+    """, id1=id1, id2=id2)
+    
+    if result.data():
+        print(f"Attendee {id1} is already connected to attendee {id2}")
+        return
+    
+    # Create nodes if they don't exist and add relationship
+    neo4j_session.run("""
+        MERGE (a:Attendee {AttendeeID: $id1})
+        MERGE (b:Attendee {AttendeeID: $id2})
+        CREATE (a)-[:CONNECTED_TO]->(b)
+    """, id1=id1, id2=id2)
+    
+    print(f"Attendee {id1} - {attendee1[0]} is now CONNECTED_TO attendee {id2} - {attendee2[0]}")
 
 while True:
     main_menu()
@@ -186,7 +239,7 @@ while True:
     elif choice == "4":
         view_connected_attendees()
     elif choice == "5":
-        print("Option 5 selected")
+        add_attendee_connection()
     elif choice == "6":
         print("Option 6 selected")
     elif choice == "x":
