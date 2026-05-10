@@ -72,7 +72,7 @@ def view_attendees_by_company():
     results = cursor.fetchall()
     
     if len(results) == 0:
-        print(f"No attendees found for company {company[0]}")
+        print(f"No attendees found for {company[0]}")
     else:
         for row in results:
             print(f"\nAttendee: {row[0]}")
