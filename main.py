@@ -226,6 +226,20 @@ def add_attendee_connection():
     
     print(f"Attendee {id1} - {attendee1[0]} is now CONNECTED_TO attendee {id2} - {attendee2[0]}")
 
+rooms_cache = None
+
+def view_rooms():
+    global rooms_cache
+    if rooms_cache is None:
+        cursor.execute("SELECT roomID, roomName, capacity FROM room")
+        rooms_cache = cursor.fetchall()
+    
+    print("\nRooms:")
+    print(f"{'ID':<10}{'Name':<30}{'Capacity'}")
+    print("-" * 50)
+    for room in rooms_cache:
+        print(f"{room[0]:<10}{room[1]:<30}{room[2]}")
+
 while True:
     main_menu()
     choice = input("Enter choice: ").strip().lower()
@@ -241,7 +255,7 @@ while True:
     elif choice == "5":
         add_attendee_connection()
     elif choice == "6":
-        print("Option 6 selected")
+        view_rooms()
     elif choice == "x":
         print("Goodbye!")
         break
