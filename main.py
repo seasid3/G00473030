@@ -135,6 +135,44 @@ def add_attendee():
     db.commit()
     print("Attendee successfully added")
 
+def view_connected_attendees():
+    while True:
+        attendee_id = input("Enter attendee ID: ").strip()
+        if attendee_id.isnumeric():
+            break
+        print("Invalid attendee ID, please enter a numeric ID")
+    
+    attendee_id = int(attendee_id)
+    
+    # Check if attendee exists in MySQL
+    cursor.execute("SELECT attendeeName FROM attendee WHERE attendeeID = %s", (attendee_id,))
+    mysql_result = cursor.fetchone()
+    
+    if mysql_result is None:
+        print(f"Attendee {attendee_id} does not exist in either database")
+        return
+    
+    print(f"\nAttendee: {mysql_result[0]}")
+    
+    # Check Neo4j for connections
+    result = neo4j_session.run("""
+        MATCH (a:Attendee {AttendeeID: $id})
+        OPTIONAL MATCH (a)-[:CONNECTED_TO]-(b:Attendee)
+        RETURN b.AttendeeID as connectedID
+    """, id=attendee_id)
+    
+    records = result.data()
+    
+    if not records or records[0]['connectedID'] is None:
+        print("No connections")
+    else:
+        for record in records:
+            connected_id = record['connectedID']
+            cursor.execute("SELECT attendeeName FROM attendee WHERE attendeeID = %s", (connected_id,))
+            connected_name = cursor.fetchone()
+            print(f"Connected to: {connected_id} - {connected_name[0]}")
+
+
 while True:
     main_menu()
     choice = input("Enter choice: ").strip().lower()
@@ -146,7 +184,7 @@ while True:
     elif choice == "3":
         add_attendee()
     elif choice == "4":
-        print("Option 4 selected")
+        view_connected_attendees()
     elif choice == "5":
         print("Option 5 selected")
     elif choice == "6":
