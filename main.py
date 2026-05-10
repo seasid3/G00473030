@@ -82,6 +82,53 @@ def view_attendees_by_company():
             print(f"Date: {row[4]}")
             print(f"Room: {row[5]}")
 
+def add_attendee():
+    # Get attendee ID
+    while True:
+        attendee_id = input("Enter attendee ID: ").strip()
+        if attendee_id.isnumeric():
+            break
+        print("Invalid ID, please enter a numeric ID")
+    
+    # Check if attendee ID already exists
+    cursor.execute("SELECT attendeeID FROM attendee WHERE attendeeID = %s", (attendee_id,))
+    if cursor.fetchone():
+        print(f"Attendee ID {attendee_id} already exists")
+        return
+    
+    # Get name
+    name = input("Enter attendee name: ").strip()
+    
+    # Get DOB
+    dob = input("Enter date of birth (YYYY-MM-DD): ").strip()
+    
+    # Get gender
+    while True:
+        gender = input("Enter gender (Male/Female): ").strip()
+        if gender in ("Male", "Female"):
+            break
+        print("Invalid gender, please enter Male or Female")
+    
+    # Get company ID
+    while True:
+        company_id = input("Enter company ID: ").strip()
+        if company_id.isnumeric():
+            cursor.execute("SELECT companyID FROM company WHERE companyID = %s", (company_id,))
+            if cursor.fetchone():
+                break
+            print(f"Company ID {company_id} does not exist")
+        else:
+            print("Invalid company ID, please enter a numeric ID")
+    
+    # Insert attendee
+    query = """
+        INSERT INTO attendee (attendeeID, attendeeName, attendeeDOB, attendeeGender, attendeeCompanyID)
+        VALUES (%s, %s, %s, %s, %s)
+    """
+    cursor.execute(query, (attendee_id, name, dob, gender, company_id))
+    db.commit()
+    print("Attendee successfully added")
+
 while True:
     main_menu()
     choice = input("Enter choice: ").strip().lower()
@@ -91,7 +138,7 @@ while True:
     elif choice == "2":
         view_attendees_by_company()
     elif choice == "3":
-        print("Option 3 selected")
+        add_attendee()
     elif choice == "4":
         print("Option 4 selected")
     elif choice == "5":
