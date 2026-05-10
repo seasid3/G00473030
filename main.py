@@ -19,7 +19,7 @@ def main_menu():
     print("4. View Connected Attendees")
     print("5. Add Attendee Connection")
     print("6. View Rooms")
-    print("x. Exit")
+    print("x. Exit application")
     print("====================================")
 
 def view_speakers():
@@ -35,7 +35,7 @@ def view_speakers():
     results = cursor.fetchall()
     
     if len(results) == 0:
-        print("No speakers match your search string")
+        print("No speakers found of that name.")
     else:
         for row in results:
             print(f"\nSpeaker: {row[0]}")
