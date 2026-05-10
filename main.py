@@ -2,7 +2,9 @@
 # Author: Orla Woods with coding assistance from Claude (Anthropic)
 
 import mysql.connector
+from neo4j import GraphDatabase
 
+# MySQL connection setup
 db = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -10,6 +12,10 @@ db = mysql.connector.connect(
     database="appdbproj"
 )
 cursor = db.cursor()
+
+# Neo4j connection setup
+neo4j_driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "rootroot"))
+neo4j_session = neo4j_driver.session(database="appdbprojneo4j")
 
 def main_menu():
     print("=== Conference Management System ===")
