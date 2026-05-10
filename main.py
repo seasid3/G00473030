@@ -54,7 +54,7 @@ def view_attendees_by_company():
     company = cursor.fetchone()
     
     if company is None:
-        print(f"Company with ID {company_id} does not exist")
+        print(f"Company with ID {company_id} doesn't exist")
         return
     
     print(f"\nCompany: {company[0]}")
@@ -72,7 +72,7 @@ def view_attendees_by_company():
     results = cursor.fetchall()
     
     if len(results) == 0:
-        print("No attendees from this company have attended any sessions")
+        print(f"No attendees found for company {company[0]}")
     else:
         for row in results:
             print(f"\nAttendee: {row[0]}")
