@@ -162,7 +162,6 @@ def view_connected_attendees():
     """, id=attendee_id)
     
     records = result.data()
-    print(f"Debug: {records}")  # add this line temporarily
     
     if not records or records[0]['connectedID'] is None:
         print("No connections")
