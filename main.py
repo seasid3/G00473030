@@ -42,6 +42,45 @@ def view_speakers():
             print(f"Session: {row[1]}")
             print(f"Room: {row[2]}")
 
+def view_attendees_by_company():
+    while True:
+        company_id = input("Enter company ID: ").strip()
+        if company_id.isnumeric() and int(company_id) > 0:
+            break
+        print("Invalid company ID, please enter a valid numeric ID greater than 0")
+    
+    # Check if company exists
+    cursor.execute("SELECT companyName FROM company WHERE companyID = %s", (company_id,))
+    company = cursor.fetchone()
+    
+    if company is None:
+        print(f"Company with ID {company_id} does not exist")
+        return
+    
+    print(f"\nCompany: {company[0]}")
+    
+    # Get attendees and their sessions
+    query = """
+        SELECT a.attendeeName, a.attendeeDOB, s.sessionTitle, s.speakerName, s.sessionDate, r.roomName
+        FROM attendee a
+        JOIN registration reg ON a.attendeeID = reg.attendeeID
+        JOIN session s ON reg.sessionID = s.sessionID
+        JOIN room r ON s.roomID = r.roomID
+        WHERE a.attendeeCompanyID = %s
+    """
+    cursor.execute(query, (company_id,))
+    results = cursor.fetchall()
+    
+    if len(results) == 0:
+        print("No attendees from this company have attended any sessions")
+    else:
+        for row in results:
+            print(f"\nAttendee: {row[0]}")
+            print(f"Date of Birth: {row[1]}")
+            print(f"Session: {row[2]}")
+            print(f"Speaker: {row[3]}")
+            print(f"Date: {row[4]}")
+            print(f"Room: {row[5]}")
 
 while True:
     main_menu()
@@ -50,7 +89,7 @@ while True:
     if choice == "1":
         view_speakers()
     elif choice == "2":
-        print("Option 2 selected")
+        view_attendees_by_company()
     elif choice == "3":
         print("Option 3 selected")
     elif choice == "4":
