@@ -1,6 +1,16 @@
 # This programme 
 # Author: Orla Woods with coding assistance from Claude (Anthropic)
 
+import mysql.connector
+
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="root",
+    database="appdbproj"
+)
+cursor = db.cursor()
+
 def main_menu():
     print("=== Conference Management System ===")
     print("1. View Speakers & Sessions")
@@ -12,12 +22,33 @@ def main_menu():
     print("x. Exit")
     print("====================================")
 
+def view_speakers():
+    search = input("Enter speaker name (or part thereof): ").strip()
+    
+    query = """
+        SELECT s.speakerName, s.sessionTitle, r.roomName
+        FROM session s
+        JOIN room r ON s.roomID = r.roomID
+        WHERE s.speakerName LIKE %s
+    """
+    cursor.execute(query, ("%" + search + "%",))
+    results = cursor.fetchall()
+    
+    if len(results) == 0:
+        print("No speakers match your search string")
+    else:
+        for row in results:
+            print(f"\nSpeaker: {row[0]}")
+            print(f"Session: {row[1]}")
+            print(f"Room: {row[2]}")
+
+
 while True:
     main_menu()
     choice = input("Enter choice: ").strip().lower()
     
     if choice == "1":
-        print("Option 1 selected")
+        view_speakers()
     elif choice == "2":
         print("Option 2 selected")
     elif choice == "3":
