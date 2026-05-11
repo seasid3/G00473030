@@ -4,121 +4,169 @@ A Python command-line application for managing a conference database, using MySQ
 
 ---
 
+## GitHub Repository
+
+https://github.com/seasid3/G00473030
+
+---
+
 ## Project Structure
 
 ```
 G00473030/
-├── main.py           # Main application file
-├── GitLink.txt       # Link to GitHub repository
-├── README.md         # This file
-└── innovation.pdf    # Innovation documentation (if applicable)
+├── main.py                  # Main application file
+├── appdbproj.sql            # MySQL database script
+├── appdbprojNeo4j.json      # Neo4j Cypher script
+├── GitLink.txt              # Link to GitHub repository
+└── README.md                # This file
 ```
 
 ---
 
 ## Technologies Used
 
-- **Python 3**
-- **MySQL** (via WAMP on Windows) — conference management data
-- **Neo4j** — attendee connection relationships
+- **Python 3.12**
+- **MySQL 8.0** — conference management data
+- **Neo4j Desktop** — attendee connection relationships
 - **mysql-connector-python** — Python MySQL driver
 - **neo4j** — Python Neo4j driver
 
 ---
 
-## Setup Instructions
+## Running from the Zip File (Assessment Setup)
 
-### 1. Prerequisites
+These are the steps to set up and run the application from scratch on the ATU VM or any Windows machine.
 
-- Python 3 installed
-- WAMP installed and running (MySQL via WAMP)
-- Neo4j Desktop installed and running
+### Step 1 — Extract the Zip File
 
-### 2. Install Python Dependencies
+Extract `G00473030.zip` to a folder. All required files will be inside including `main.py`, `appdbproj.sql` and `appdbprojNeo4j.json`.
+
+### Step 2 — Install Python 3.12
+
+```bash
+winget install Python.Python.3.12
+```
+
+> **Note:** Python 3.12 is recommended. There are known issues with mysql-connector-python on newer versions of Python.
+
+Close and reopen CMD after installation, then verify:
+
+```bash
+python --version
+```
+
+### Step 3 — Install Python Dependencies
+
+Navigate to the extracted project folder and run:
 
 ```bash
 pip install mysql-connector-python neo4j
 ```
 
-### 3. MySQL Setup
+### Step 4 — Set Up MySQL Database
 
-1. Open MySQL Workbench and connect to your local MySQL instance (via WAMP)
-   - Host: `localhost`
-   - Port: `3306`
-   - Username: `root`
-   - Password: `root`
-2. Go to **Server → Data Import**
-3. Select **Import from Self-Contained File** and choose `appdbproj.sql`
-4. Click **Start Import**
-5. Verify `appdbproj` appears in the Schemas panel on the left
+Ensure MySQL Server 8.0 is installed, then import the database using the SQL file included in the project:
 
-Alternatively, use the command line:
 ```bash
-mysql -u root -p < appdbproj.sql
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p < appdbproj.sql
 ```
 
-### 4. Neo4j Setup
+Enter your MySQL root password when prompted (default is usually `root`). This will create the `appdbproj` database automatically.
 
-1. Open Neo4j Desktop
-2. Create a new instance called `appdbprojNeo4j` with password `rootroot`
+To verify it worked, connect to MySQL:
+
+```bash
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" -u root -p
+```
+
+Then run:
+
+```sql
+SHOW DATABASES;
+```
+
+You should see `appdbproj` in the list. Type `exit` to leave MySQL.
+
+### Step 5 — Set Up Neo4j Database
+
+1. Open Neo4j Desktop and create a new Local DBMS instance
+2. Set the password to `rootroot`
 3. Start the instance
-4. Open the Query panel and switch to the correct database:
+4. Click **Open → Terminal** on the instance to open the Neo4j Desktop Terminal
+5. Navigate to the Neo4j bin folder:
+
+```bash
+cd C:\Users\YOUR_USERNAME\.Neo4jDesktop\relate-data\dbmss\YOUR_DBMS_FOLDER\bin
+```
+
+6. Connect to cypher-shell:
+
+```bash
+cypher-shell -u neo4j -p rootroot
+```
+
+7. Create the database:
+
+```cypher
+CREATE DATABASE appdbprojneo4j;
+```
+
+8. Switch to the new database:
+
 ```cypher
 :use appdbprojneo4j
 ```
-5. Run the following in order:
 
-**Step 1 — Clear existing data:**
+9. Exit cypher-shell:
+
 ```cypher
-MATCH (n) DETACH DELETE n
+:exit
 ```
 
-**Step 2 — Create attendee nodes:**
-```cypher
-CREATE
-(:Attendee {AttendeeID: 101}),
-(:Attendee {AttendeeID: 102}),
-(:Attendee {AttendeeID: 103}),
-(:Attendee {AttendeeID: 104}),
-(:Attendee {AttendeeID: 105}),
-(:Attendee {AttendeeID: 106}),
-(:Attendee {AttendeeID: 107}),
-(:Attendee {AttendeeID: 108}),
-(:Attendee {AttendeeID: 109}),
-(:Attendee {AttendeeID: 110}),
-(:Attendee {AttendeeID: 111}),
-(:Attendee {AttendeeID: 113}),
-(:Attendee {AttendeeID: 114}),
-(:Attendee {AttendeeID: 115}),
-(:Attendee {AttendeeID: 116}),
-(:Attendee {AttendeeID: 117}),
-(:Attendee {AttendeeID: 118}),
-(:Attendee {AttendeeID: 120})
+10. Run the Neo4j Cypher script included in the project to import the data:
+
+```bash
+cypher-shell -u neo4j -p rootroot -d appdbprojneo4j -f "PATH_TO_PROJECT\appdbprojNeo4j.json"
 ```
 
-**Step 3 — Create relationships:**
-```cypher
-MATCH (a:Attendee {AttendeeID: 101}), (b:Attendee {AttendeeID: 109}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 101}), (b:Attendee {AttendeeID: 107}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 102}), (b:Attendee {AttendeeID: 110}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 103}), (b:Attendee {AttendeeID: 111}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 104}), (b:Attendee {AttendeeID: 120}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 105}), (b:Attendee {AttendeeID: 113}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 106}), (b:Attendee {AttendeeID: 114}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 107}), (b:Attendee {AttendeeID: 115}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 108}), (b:Attendee {AttendeeID: 116}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 111}), (b:Attendee {AttendeeID: 101}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 106}), (b:Attendee {AttendeeID: 103}) CREATE (a)-[:CONNECTED_TO]->(b);
-MATCH (a:Attendee {AttendeeID: 120}), (b:Attendee {AttendeeID: 103}) CREATE (a)-[:CONNECTED_TO]->(b)
+Replace `PATH_TO_PROJECT` with the full path to your extracted project folder, for example:
+
+```bash
+cypher-shell -u neo4j -p rootroot -d appdbprojneo4j -f "C:\Users\appDB\G00473030\appdbprojNeo4j.json"
 ```
 
-> **Important:** Make sure you run `:use appdbprojneo4j` before running the above steps. If you run them in the default `neo4j` database, the Python app will not find the data and option 4 will show "No connections" for all attendees.
+11. Verify the import worked by connecting again and running:
 
-### 5. Run the Application
+```cypher
+MATCH (n) RETURN count(n);
+```
+
+This should return 18 nodes.
+
+```cypher
+MATCH ()-[r]->() RETURN count(r);
+```
+
+This should return 12 relationships.
+
+### Step 6 — Run the Application
+
+Navigate to the project folder and run:
 
 ```bash
 python main.py
 ```
+
+---
+
+## Database Connection Details
+
+| Database | Host      | Port | Username | Password   | Database Name   |
+|----------|-----------|------|----------|------------|-----------------|
+| MySQL    | localhost | 3306 | root     | root       | appdbproj       |
+| Neo4j    | localhost | 7687 | neo4j    | rootroot   | appdbprojneo4j  |
+
+> If your MySQL root password is different, update the `MYSQL_PASSWORD` variable at the top of `main.py`.
 
 ---
 
@@ -171,32 +219,34 @@ Displays all rooms with their ID, name, and capacity. Rooms are cached on first 
 ### Neo4j Data Imported to Wrong Database
 When importing the attendee data into Neo4j, the Cypher script was run while connected to the default `neo4j` database instead of `appdbprojneo4j`. This caused option 4 (View Connected Attendees) to return "No connections" for all attendees, even ones with known relationships.
 
-**Fix:** In the Neo4j Browser query panel, run `:use appdbprojneo4j` first to switch to the correct database, then re-run the import steps.
+**Fix:** Run `:use appdbprojneo4j` in cypher-shell first to switch to the correct database before running the import.
+
+### MySQL Not in PATH on VM
+After installing MySQL on the ATU VM, the `mysql` command was not recognised in CMD because the install location was not added to the system PATH.
+
+**Fix:** Use the full path to `mysql.exe` as shown in the setup instructions above.
+
+### Git Not Installed on VM
+Git was not installed on the ATU VM by default, so the repository could not be cloned until it was installed.
+
+**Fix:** `winget install Git.Git`
+
+### Python Not Installed on VM
+Python was not installed on the ATU VM by default.
+
+**Fix:** `winget install Python.Python.3.12` — version 3.12 specifically recommended due to known compatibility issues with mysql-connector-python on newer Python versions.
+
+### Neo4j cypher-shell Not in PATH
+After installing Neo4j Desktop on the VM, the `cypher-shell` command was not recognised in CMD. It had to be accessed via the full path inside the Neo4j Desktop data folder.
+
+**Fix:** Navigate to the bin folder inside the Neo4j DBMS folder as shown in the setup instructions above.
 
 ### MySQL Password Forgotten
-The MySQL root password was forgotten during setup. Since MySQL was running via WAMP, the password was `root` by default.
+The MySQL root password was forgotten during development setup.
 
 **Fix:** Try common defaults (`root`, `password`, blank) before attempting a full password reset.
 
 ### Cursor Not Defined Error
-When first adding the `view_speakers()` function, a `NameError: name 'cursor' is not defined` error occurred because the MySQL connection code was missing from the top of `main.py`.
+A `NameError: name 'cursor' is not defined` error occurred because the MySQL connection code was missing from the top of `main.py`.
 
 **Fix:** Ensure the MySQL connection and cursor are defined at the top of `main.py` before any functions are called.
-
-### Neo4j Browser Not Obvious to Open
-Neo4j Desktop does not have an obvious "Open Browser" button — hovering over the Open button shows folder/log options instead. The Query panel inside Neo4j Desktop serves as the browser for running Cypher commands.
-
----
-
-## Database Connection Details
-
-| Database | Host      | Port | Username | Password   | Database Name   |
-|----------|-----------|------|----------|------------|-----------------|
-| MySQL    | localhost | 3306 | root     | root       | appdbproj       |
-| Neo4j    | localhost | 7687 | neo4j    | rootroot   | appdbprojneo4j  |
-
----
-
-## GitHub Repository
-
-https://github.com/seasid3/G00473030
