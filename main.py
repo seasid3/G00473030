@@ -1,5 +1,5 @@
 # This programme manages a conference database using MySQL and Neo4j
-# Author: Orla Woods with coding assistance from Claude (Anthropic)
+# Author: Orla Woods with major coding assistance from Claude (Anthropic)
 
 import mysql.connector
 from neo4j import GraphDatabase

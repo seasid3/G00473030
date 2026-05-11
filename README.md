@@ -2,6 +2,8 @@
 
 This programme presents a conference management system built with Python, using MySQL and Neo4j databases. This is submitted for the Applied Databases module at ATU.
 
+**Note:** This project was developed with coding assistance from Claude (Anthropic).
+
 ---
 
 ## GitHub Repository
