@@ -21,20 +21,26 @@ neo4j_session = neo4j_driver.session(database=NEO4J_DATABASE)
 
 # Main menu function
 def main_menu():
-    print("=== Conference Management System ===")
-    print("1. View Speakers & Sessions")
-    print("2. View Attendees by Company")
-    print("3. Add New Attendee")
-    print("4. View Connected Attendees")
-    print("5. Add Attendee Connection")
-    print("6. View Rooms")
-    print("x. Exit application")
-    print("====================================")
-
+    print("")
+    print("Conference Management")
+    print("---------------------")
+    print("")
+    print("MENU")
+    print("====")
+    print("1 - View Speakers & Sessions")
+    print("2 - View Attendees by Company")
+    print("3 - Add New Attendee")
+    print("4 - View Connected Attendees")
+    print("5 - Add Attendee Connection")
+    print("6 - View Rooms")
+    print("x - Exit application")
+    print("")
+    
 # Function to view speakers, their sessions, and room details
 def view_speakers():
-    search = input("Enter speaker name (or part thereof): ").strip()
-    
+    search = input("Enter speaker name : ").strip()
+    print(f"Session Details For : {search}")
+        
     query = """
         SELECT s.speakerName, s.sessionTitle, r.roomName
         FROM session s
@@ -45,31 +51,32 @@ def view_speakers():
     results = cursor.fetchall()
     
     if len(results) == 0:
-        print("No speakers found of that name.")
+        print("No speakers found of that name")
+        print("")
     else:
         for row in results:
-            print(f"\nSpeaker: {row[0]}")
-            print(f"Session: {row[1]}")
-            print(f"Room: {row[2]}")
+            print(f"{row[0]}  |  {row[1]}  |  {row[2]}")
+            
 
 # Function to view attendees by company, including their sessions and room details
 def view_attendees_by_company():
     while True:
-        company_id = input("Enter company ID: ").strip()
+        company_id = input("Enter company ID : ").strip()
         if company_id.isnumeric() and int(company_id) > 0:
             break
-        print("Invalid company ID, please enter a valid numeric ID greater than 0")
+        print("*** ERROR *** Invalid company ID, please enter a valid numeric ID greater than 0")
     
     # Check if company exists
     cursor.execute("SELECT companyName FROM company WHERE companyID = %s", (company_id,))
     company = cursor.fetchone()
     
     if company is None:
-        print(f"Company with ID {company_id} doesn't exist")
+        print(f"*** ERROR *** Company with ID {company_id} doesn't exist")
         return
     
-    print(f"\nCompany: {company[0]}")
-    
+    print(f"{company[0]} Attendees")
+    print("")
+
     # Get attendees and their sessions
     query = """
         SELECT a.attendeeName, a.attendeeDOB, s.sessionTitle, s.speakerName, s.sessionDate, r.roomName
@@ -86,68 +93,66 @@ def view_attendees_by_company():
         print(f"No attendees found for {company[0]}")
     else:
         for row in results:
-            print(f"\nAttendee: {row[0]}")
-            print(f"Date of Birth: {row[1]}")
-            print(f"Session: {row[2]}")
-            print(f"Speaker: {row[3]}")
-            print(f"Date: {row[4]}")
-            print(f"Room: {row[5]}")
-
+            print(f"{row[0]}  |  {row[1]}  |  {row[2]}  |  {row[3]}  |  {row[4]}  |  {row[5]}")
+            
 # Function to add a new attendee, ensuring valid input and checking for duplicates
 def add_attendee():
     # Get attendee ID
     while True:
-        attendee_id = input("Enter attendee ID: ").strip()
+        attendee_id = input("Attendee ID : ").strip()
         if attendee_id.isnumeric():
             break
-        print("Invalid ID, please enter a numeric ID")
+        print("*** ERROR *** Invalid ID, please enter a numeric ID")
     
     # Check if attendee ID already exists
     cursor.execute("SELECT attendeeID FROM attendee WHERE attendeeID = %s", (attendee_id,))
     if cursor.fetchone():
-        print(f"Attendee ID {attendee_id} already exists")
+        print(f"*** ERROR *** Attendee ID : {attendee_id} already exists")
         return
     
     # Get name
-    name = input("Enter attendee name: ").strip()
+    name = input("Name : ").strip()
     
     # Get DOB
-    dob = input("Enter date of birth (YYYY-MM-DD): ").strip()
+    dob = input("DOB (YYYY-MM-DD) : ").strip()
     
     # Get gender
     while True:
-        gender = input("Enter gender (Male/Female): ").strip()
+        gender = input("Gender (Male/Female) : ").strip()
         if gender in ("Male", "Female"):
             break
-        print("Invalid gender, please enter Male or Female")
+        print("*** ERROR *** Gender must be Male/Female")
     
     # Get company ID
     while True:
-        company_id = input("Enter company ID: ").strip()
+        company_id = input("Company ID : ").strip()
         if company_id.isnumeric():
             cursor.execute("SELECT companyID FROM company WHERE companyID = %s", (company_id,))
             if cursor.fetchone():
                 break
-            print(f"Company ID {company_id} does not exist")
+            print(f"*** ERROR *** Company ID : {company_id} does not exist")
         else:
-            print("Invalid company ID, please enter a numeric ID")
+            print("*** ERROR *** Invalid company ID, please enter a numeric ID")
     
-    # Insert attendee
-    query = """
-        INSERT INTO attendee (attendeeID, attendeeName, attendeeDOB, attendeeGender, attendeeCompanyID)
-        VALUES (%s, %s, %s, %s, %s)
-    """
-    cursor.execute(query, (attendee_id, name, dob, gender, company_id))
-    db.commit()
-    print("Attendee successfully added")
+    # Insert attendee and catch any database errors
+    try:
+        query = """
+            INSERT INTO attendee (attendeeID, attendeeName, attendeeDOB, attendeeGender, attendeeCompanyID)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (attendee_id, name, dob, gender, company_id))
+        db.commit()
+        print("Attendee successfully added")
+    except Exception as e:
+        print(f"*** ERROR *** {e}")
 
 # Function to view connected attendees for a given attendee ID, checking both MySQL and Neo4j databases
 def view_connected_attendees():
     while True:
-        attendee_id = input("Enter attendee ID: ").strip()
+        attendee_id = input("Enter attendee ID : ").strip()
         if attendee_id.isnumeric():
             break
-        print("Invalid attendee ID, please enter a numeric ID")
+        print("*** ERROR *** Invalid attendee ID")
     
     attendee_id = int(attendee_id)
     
@@ -156,10 +161,10 @@ def view_connected_attendees():
     mysql_result = cursor.fetchone()
     
     if mysql_result is None:
-        print(f"Attendee {attendee_id} does not exist in either database")
+        print(f"*** ERROR *** Attendee {attendee_id} does not exist")
         return
     
-    print(f"\nAttendee: {mysql_result[0]}")
+    print(f"Attendee: {mysql_result[0]}")
     
     # Check Neo4j for connections
     result = neo4j_session.run("""
@@ -183,36 +188,34 @@ def view_connected_attendees():
 def add_attendee_connection():
     # Get two attendee IDs
     while True:
-        id1 = input("Enter first attendee ID: ").strip()
+        id1 = input("Enter first attendee ID : ").strip()
         if id1.isnumeric():
             break
-        print("Invalid attendee ID, please enter a numeric ID")
+        print("*** ERROR *** Attendee IDs must be numbers")
     
     while True:
-        id2 = input("Enter second attendee ID: ").strip()
+        id2 = input("Enter second attendee ID : ").strip()
         if id2.isnumeric():
             break
-        print("Invalid attendee ID, please enter a numeric ID")
+        print("*** ERROR *** Attendee IDs must be numbers")
     
     id1 = int(id1)
     id2 = int(id2)
     
     # Check they are not the same person
     if id1 == id2:
-        print("An attendee cannot be connected to themselves")
+        print("*** ERROR *** An attendee cannot connect to him/herself")
         return
     
     # Check both exist in MySQL
     cursor.execute("SELECT attendeeName FROM attendee WHERE attendeeID = %s", (id1,))
     attendee1 = cursor.fetchone()
-    if attendee1 is None:
-        print(f"Attendee {id1} does not exist in the database")
-        return
     
     cursor.execute("SELECT attendeeName FROM attendee WHERE attendeeID = %s", (id2,))
     attendee2 = cursor.fetchone()
-    if attendee2 is None:
-        print(f"Attendee {id2} does not exist in the database")
+    
+    if attendee1 is None or attendee2 is None:
+        print("*** ERROR *** One or both attendee IDs do not exist")
         return
     
     # Check if already connected in Neo4j
@@ -222,7 +225,7 @@ def add_attendee_connection():
     """, id1=id1, id2=id2)
     
     if result.data():
-        print(f"Attendee {id1} is already connected to attendee {id2}")
+        print("*** ERROR *** These attendees are already connected")
         return
     
     # Create nodes if they don't exist and add relationship
@@ -232,7 +235,7 @@ def add_attendee_connection():
         CREATE (a)-[:CONNECTED_TO]->(b)
     """, id1=id1, id2=id2)
     
-    print(f"Attendee {id1} - {attendee1[0]} is now CONNECTED_TO attendee {id2} - {attendee2[0]}")
+    print(f"Attendee {id1} - {attendee1[0]} is now connected to Attendee {id2} - {attendee2[0]}")
 
 rooms_cache = None
 
@@ -243,15 +246,15 @@ def view_rooms():
         cursor.execute("SELECT roomID, roomName, capacity FROM room")
         rooms_cache = cursor.fetchall()
     
-    print("\nRooms:")
-    print(f"{'ID':<10}{'Name':<30}{'Capacity'}")
-    print("-" * 50)
+    print("RoomID  |  Room Name  |  Capacity")
+    print("-" * 40)
     for room in rooms_cache:
-        print(f"{room[0]:<10}{room[1]:<30}{room[2]}")
+        print(f"{room[0]}  |  {room[1]}  |  {room[2]}")
 
 while True:
     main_menu()
-    choice = input("Enter choice: ").strip().lower()
+    choice = input("Choice: ").strip().lower()
+    print("")
     
     if choice == "1":
         view_speakers()
