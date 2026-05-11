@@ -1,6 +1,6 @@
 # G00473030 - Applied Databases Final Project
 
-A Python command-line application for managing a conference database, using MySQL and Neo4j. Built as part of the Applied Databases module at ATU.
+This is a conference management system built using Python, using MySQL and Neo4j database management systems. This is submitted for the Applied Databases module at ATU.
 
 ---
 
