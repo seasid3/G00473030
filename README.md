@@ -176,6 +176,7 @@ python main.py
 | Neo4j    | localhost | 7687 | neo4j    | rootroot   | appdbprojneo4j  |
 
 > Where MySQL or Neo4j credentials are different, update the settings in `config.py`.
+> If Neo4j fails to connect, try switching `NEO4J_URI` in `config.py` between `bolt://localhost:7687` and `bolt://127.0.0.1:7687`.
 
 ---
 
