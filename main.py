@@ -1,4 +1,4 @@
-# This programme 
+# This programme manages a conference database using MySQL and Neo4j
 # Author: Orla Woods with coding assistance from Claude (Anthropic)
 
 import mysql.connector
@@ -17,6 +17,7 @@ cursor = db.cursor()
 neo4j_driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "rootroot"))
 neo4j_session = neo4j_driver.session(database="appdbprojneo4j")
 
+# Main menu function
 def main_menu():
     print("=== Conference Management System ===")
     print("1. View Speakers & Sessions")
@@ -28,6 +29,7 @@ def main_menu():
     print("x. Exit application")
     print("====================================")
 
+# Function to view speakers, their sessions, and room details
 def view_speakers():
     search = input("Enter speaker name (or part thereof): ").strip()
     
@@ -48,6 +50,7 @@ def view_speakers():
             print(f"Session: {row[1]}")
             print(f"Room: {row[2]}")
 
+# Function to view attendees by company, including their sessions and room details
 def view_attendees_by_company():
     while True:
         company_id = input("Enter company ID: ").strip()
@@ -88,6 +91,7 @@ def view_attendees_by_company():
             print(f"Date: {row[4]}")
             print(f"Room: {row[5]}")
 
+# Function to add a new attendee, ensuring valid input and checking for duplicates
 def add_attendee():
     # Get attendee ID
     while True:
@@ -135,6 +139,7 @@ def add_attendee():
     db.commit()
     print("Attendee successfully added")
 
+# Function to view connected attendees for a given attendee ID, checking both MySQL and Neo4j databases
 def view_connected_attendees():
     while True:
         attendee_id = input("Enter attendee ID: ").strip()
@@ -172,6 +177,7 @@ def view_connected_attendees():
             connected_name = cursor.fetchone()
             print(f"Connected to: {connected_id} - {connected_name[0]}")
 
+# Function to add a connection between two attendees, ensuring they are not the same person, both exist in MySQL, and are not already connected in Neo4j
 def add_attendee_connection():
     # Get two attendee IDs
     while True:
@@ -228,6 +234,7 @@ def add_attendee_connection():
 
 rooms_cache = None
 
+# Function to view rooms, using a cache to avoid unnecessary database queries
 def view_rooms():
     global rooms_cache
     if rooms_cache is None:
