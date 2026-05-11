@@ -1,6 +1,6 @@
 # G00473030 - Applied Databases Final Project
 
-This is a conference management system built using Python, using MySQL and Neo4j database management systems. This is submitted for the Applied Databases module at ATU.
+This programme presents a conference management system built with Python, using MySQL and Neo4j databases. This is submitted for the Applied Databases module at ATU.
 
 ---
 
@@ -19,6 +19,7 @@ G00473030/
 ├── appdbprojNeo4j.json      # Neo4j Cypher script
 ├── GitLink.txt              # Link to GitHub repository
 ├── requirements.txt         # Python dependencies
+├── config.py                # Database connection settings
 └── README.md                # This file
 
 ```
@@ -35,7 +36,7 @@ G00473030/
 
 ## Running from the Zip File (Assessment Setup)
 
-Set up steps which are required to run the application from scratch on the ATU VM or any Windows machine.
+The following set up steps are required to run the application from scratch on the ATU VM (or any Windows machine).
 
 ### Step 1 — Extract the Zip File
 
@@ -59,11 +60,15 @@ python --version
 
 Navigate to the extracted project folder and run:
 
+```bash
 pip install -r requirements.txt
+```
 
 Or install manually:
 
+```bash
 pip install mysql-connector-python neo4j
+```
 
 ### Step 4 — Set Up MySQL Database
 
@@ -168,6 +173,7 @@ python main.py
 | MySQL    | localhost | 3306 | root     | root       | appdbproj       |
 | Neo4j    | localhost | 7687 | neo4j    | rootroot   | appdbprojneo4j  |
 
+> Where MySQL or Neo4j credentials are different, update the settings in `config.py`.
 
 ---
 
@@ -215,7 +221,7 @@ Displays all rooms with their ID, name, and capacity. Rooms are cached on first 
 
 ---
 
-## Problems Encountered During Development
+## Problems Encountered During Development (fixed using Claude [Anthropic])
 
 ### Neo4j Data Imported to Wrong Database
 When importing the attendee data into Neo4j, the Cypher script was run while connected to the default `neo4j` database instead of `appdbprojneo4j`. This caused option 4 (View Connected Attendees) to return "No connections" for all attendees, even ones with known relationships.
@@ -233,7 +239,7 @@ Git was not installed on the ATU VM by default, so the repository could not be c
 **Fix:** `winget install Git.Git`
 
 ### Python Not Installed on VM
-Python was not installed on the ATU VM by default.
+Python was not installed on the ATU VM by default (all assignments to date done on local laptop).
 
 **Fix:** `winget install Python.Python.3.12` — version 3.12 specifically recommended due to known compatibility issues with mysql-connector-python on newer Python versions.
 
@@ -241,11 +247,6 @@ Python was not installed on the ATU VM by default.
 After installing Neo4j Desktop on the VM, the `cypher-shell` command was not recognised in CMD. It had to be accessed via the full path inside the Neo4j Desktop data folder.
 
 **Fix:** Navigate to the bin folder inside the Neo4j DBMS folder as shown in the setup instructions above.
-
-### MySQL Password Forgotten
-The MySQL root password was forgotten during development setup.
-
-**Fix:** Try common defaults (`root`, `password`, blank) before attempting a full password reset.
 
 ### Cursor Not Defined Error
 A `NameError: name 'cursor' is not defined` error occurred because the MySQL connection code was missing from the top of `main.py`.
