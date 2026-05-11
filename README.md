@@ -18,10 +18,10 @@ G00473030/
 ├── appdbproj.sql            # MySQL database script
 ├── appdbprojNeo4j.json      # Neo4j Cypher script
 ├── GitLink.txt              # Link to GitHub repository
+├── requirements.txt         # Python dependencies
 └── README.md                # This file
-```
 
----
+```
 
 ## Technologies Used
 
@@ -35,7 +35,7 @@ G00473030/
 
 ## Running from the Zip File (Assessment Setup)
 
-These are the steps to set up and run the application from scratch on the ATU VM or any Windows machine.
+Set up steps which are required to run the application from scratch on the ATU VM or any Windows machine.
 
 ### Step 1 — Extract the Zip File
 
@@ -47,7 +47,7 @@ Extract `G00473030.zip` to a folder. All required files will be inside including
 winget install Python.Python.3.12
 ```
 
-> **Note:** Python 3.12 is recommended. There are known issues with mysql-connector-python on newer versions of Python.
+> **Note:** Python 3.12 recommended due to known issues with mysql-connector-python on newer versions of Python.
 
 Close and reopen CMD after installation, then verify:
 
@@ -59,9 +59,11 @@ python --version
 
 Navigate to the extracted project folder and run:
 
-```bash
+pip install -r requirements.txt
+
+Or install manually:
+
 pip install mysql-connector-python neo4j
-```
 
 ### Step 4 — Set Up MySQL Database
 
@@ -166,7 +168,6 @@ python main.py
 | MySQL    | localhost | 3306 | root     | root       | appdbproj       |
 | Neo4j    | localhost | 7687 | neo4j    | rootroot   | appdbprojneo4j  |
 
-> If your MySQL root password is different, update the `MYSQL_PASSWORD` variable at the top of `main.py`.
 
 ---
 

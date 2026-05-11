@@ -3,19 +3,21 @@
 
 import mysql.connector
 from neo4j import GraphDatabase
+from config import MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE
+from config import NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD, NEO4J_DATABASE
 
 # MySQL connection setup
 db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="root",
-    database="appdbproj"
+    host=MYSQL_HOST,
+    user=MYSQL_USER,
+    password=MYSQL_PASSWORD,
+    database=MYSQL_DATABASE
 )
 cursor = db.cursor()
 
 # Neo4j connection setup
-neo4j_driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "rootroot"))
-neo4j_session = neo4j_driver.session(database="appdbprojneo4j")
+neo4j_driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+neo4j_session = neo4j_driver.session(database=NEO4J_DATABASE)
 
 # Main menu function
 def main_menu():
